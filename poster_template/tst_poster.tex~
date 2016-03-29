@@ -155,7 +155,7 @@ Texas A\&M University -- CERT Project}
                  equations are
 \begin{align}
     \frac{I^{n+1} - I^{n}}{c \Delta t} + \mu \pderiv{I^{n+1}}{x} &=  \frac{1}{2}
-    \left(\sigma_a a c T^4 \right)^{n+1} - \sigma_a I^{n+1} \label{ho_trans} \\
+    \sigma_a a c \left( T^4 \right)^{n+1} - \sigma_a I^{n+1} \label{ho_trans} \\
 \rho c_v \frac{T^{n+1} - T^n}{\Delta t} &= \sigma_a \phi^{n+1}
 - \sigma_a a c (T^4)^{n+1} \label{lo_mat}.
 \end{align}
@@ -281,10 +281,11 @@ method.}
 \begin{block}{Diffusion Synthetic Acceleration (DSA) of LO equations} 
 \setlength\itemsep{0.2em}
    \begin{itemize}
-       \item We perform DSA-accelerated source iteration on the (effective) scattering source resulting from linearization of the LO equations. 
+       \item We perform DSA-accelerated source iterations on the effective scattering source resulting from linearization of the LO equations. 
        \item A spatially \colb{continuous} discretization of the diffusion equation is applied to the residual equation for scattering iterations.  The estimated error is mapped onto the 
        moment unknowns based on a \colb{discontinuous} discretization of the P$_1$ equations over each cell. 
-         \item In a modified version of the two material problem, DSA \textbf{reduced the spectral radius from 0.993 to $<$0.1.}
+         \item In a modified version of the two material problem, DSA \textbf{reduced
+             the spectral radius of iterations from 0.993 to $<$0.1.}
    \end{itemize}
 \end{block}
 \vfill
@@ -411,7 +412,8 @@ method.}
         \item We are working towards \colb{time-continous} transport
               for ECMC to produce high temporal
                accuracy in optically thin regions, requiring  additional consistency terms in the LO equations.
-        \item Further investigation of accuracy, robustness, and consistency in fixup regions
+        \item Further investigation of accuracy, robustness, and consistency in fixup
+            regions is necessary.
         \end{itemize}
     \end{block}
 
