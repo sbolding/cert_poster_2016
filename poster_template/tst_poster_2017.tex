@@ -41,7 +41,6 @@ centered, text width=2cm, draw=black, text=white,fill=Gray!140!blue!70!white]
 %other commands
 \renewcommand{\u}[1]{\underline{#1}}
 \newcommand{\iso}[2]{${}^{{#2}}${#1} }
-\newcommand{\nubar}[0]{$\overline{\nu}$ }
 \newcommand{\expect}[1]{E[#1] }
 \newcommand{\colg}[1]{{\color{ForestGreen} #1}}
 \newcommand{\coly}[1]{{\color{yellow} #1}}
@@ -54,6 +53,7 @@ centered, text width=2cm, draw=black, text=white,fill=Gray!140!blue!70!white]
 \usepackage[latin1]{inputenc}
 \usepackage[orientation=portrait,size=a0,scale=1.4]{beamerposter}
 \usepackage{textcomp}
+\usepackage{varwidth}
 \usepackage{graphicx}
 %\usepackage{tikz}
 %\usepackage[numbers, super]{natbib}
@@ -98,6 +98,16 @@ centered, text width=2cm, draw=black, text=white,fill=Gray!140!blue!70!white]
 \newcommand{\om}{\boldsymbol{\Omega}}
 %
 
+
+\definecolor{myblue}{rgb}{0.7, 0.7, 60.0}
+
+
+\newcommand\highlight[1]{%
+          \colorbox{myblue!32}{\begin{varwidth}{\dimexpr\linewidth-2\fboxsep}#1\end{varwidth}}}
+
+
+
+
 \graphicspath{{../images/}}
 %\listfiles
 %\boldmath
@@ -115,7 +125,8 @@ centered, text width=2cm, draw=black, text=white,fill=Gray!140!blue!70!white]
    \usetheme{TAMU}
 }
 
-\title{\color{black}A High-Order Low-Order Algorithm with Exponentially Convergent Monte Carlo for Thermal Radiative Transfer}
+\title{\color{black}A High-Order Low-Order Algorithm with Residual \\ Monte Carlo Time
+Integration for Radiative Transfer}
 
 \author{\large Simon~R.~Bolding \& Jim~E.~Morel}
 
@@ -149,7 +160,7 @@ Texas A\&M University -- CERT Project}
 \parbox[t][\columnheight]{\textwidth}{ % must be some better way to set the the height, width and textwidth simultaneously
          % Since all columns are the same length, it is all nice and tidy.  You have to get the height empirically
          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-       \begin{block}{Background on Thermal Radiative Transfer}
+       \begin{block}{Overview and background on thermal radiative transfer}
          \begin{itemize}
              \setlength{\itemsep}{0.6em}
              \item The continuous radiation and material energy
@@ -168,28 +179,30 @@ Texas A\&M University -- CERT Project}
       \item We form a \textbf{lower-dimensional} system which can
           efficiently \textbf{resolve non-linearities} in the problem.  The low-order
           (LO) equations contain consistency terms that preserve accuracy
-          of \textbf{efficient}, high-order (HO) Monte Carlo simulations.
-      \item We recently have included the time variable in the Monte Carlo transport algorithm,
-          improving accuracy in optically thin problems.
+          of \textbf{efficient}, high-order (HO) exponentially-convergent Monte Carlo (ECMC) simulations.
+      \item[] \highlight{We now include the time variable $t$ in the MC transport
+              algorithm with a \textbf{consistent} LO temporal closure.  \colb{This improves
+              the accuracy of radiation wavefronts in optically thin problems.}}
       \end{itemize}
          \end{block}
          \vfill
+
          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	\begin{block}{Algorithm}
+	\begin{block}{The HOLO algorithm is applied for each time step}
         \resizebox{0.9618\linewidth}{!}{
     \fontsize{10}{11.0}\selectfont
     \begin{tikzpicture}[node distance=2cm]
         \node (start) [startstop] {Initialize LO system with $I^n$};
-        \node (in1) [process, right of=start, xshift=2cm, text width=3.3cm]  {{(A)}
+        \node (in1) [process, right of=start, xshift=2cm, text width=3.3cm]  {{}
         \colw{LO Newton solve, fully converged}};%{LO solve:\vspace{0.041in}        $\B D(\mu^{HO})\Phi = \frac{1}{\keff}\B F\Phi$};
         \node (pro1) [io, below of=in1] {$T_{LD}^{n+1}(x)$, $\phi_{LD}^{n+1}(x)$};
         \node (dec1) [decision, below of=pro1, yshift=-0.5cm, text width=1.74cm] {Outer Converged?};
         \node (pro2a) [process, left of=dec1, xshift=-2.0cm] {Move to the next time step};
-        \node (srcs) [process, right of=dec1, xshift=3.0cm, text width=2.8cm] {{{(B)}}
+        \node (srcs) [process, right of=dec1, xshift=3.0cm, text width=2.8cm] {{{}}
         \colw{Construct LD emission source}};
-        \node (pro2b) [process, above of=srcs, yshift=0.5cm] {{(C)} \colw{HO solve
-        for $\tilde I^{n+1}(x,\mu)$}};
-        \node (cons) [process, above of=pro2b, text width=3.0cm] {{(D)} \colw{Compute consistency
+        \node (pro2b) [process, above of=srcs, yshift=0.5cm] { \colw{HO solve
+        for $\tilde I(x,\mu,t)$}};
+        \node (cons) [process, above of=pro2b, text width=3.0cm] {\colw{Consistency
         terms}};
         \draw [arrow1] (start) -- (in1);
         \draw [arrow] (in1) -- (pro1);
@@ -206,12 +219,13 @@ Texas A\&M University -- CERT Project}
 	\vfill
          \vfill
          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-         \begin{block}{Details of the algorithm} 
+         \begin{block}{Details of the LO equations} 
          \setlength\itemsep{0.2em}
             \begin{itemize}
-                \item[{(A)}] The LO equations are formed by taking spatial, angular, and temporal
-                    moments of Eq.~\eqref{ho_trans} \& ~\eqref{lo_mat},
-                    defined locally over the $i$-th spatial finite element (FE). \vspace{0.2em}
+                \item The LO equations are formed with spatial, angular, and temporal
+                    moments of Eq.~\eqref{ho_trans} \& ~\eqref{lo_mat} and algebraic
+                    manipulation. Moments are defined locally over the $i$-th spatial finite element (FE) and 
+                    $n$-th time step. \vspace{0.2em}
         \end{itemize}
        \begin{minipage}{0.45\textwidth}
         \centering
@@ -244,55 +258,52 @@ Texas A\&M University -- CERT Project}
     \begin{tabular}{c}
         \underline{Spatial moments} \\[1em]
         $ {\displaystyle \mom{\cdot}_{L/R,i} = \frac{2}{h_i} \int_{x_\il}^{x_\ir}
-        b_{L/R,i}(x)(\cdot) \d x \quad }$  \\[1em]  \underline{Angular half-ranges}
+        b_{L/R,i}(x)(\cdot) \d x \quad }$ \vspace{0.4in} \\[1em]  \underline{Angular half-ranges}
         \\[1em] ${ \quad \displaystyle \phi^\pm(x) =
-        \pm\int_0^{\pm 1} I(x,\mu) \d \mu}$
+            \pm\int_0^{\pm 1} I(x,\mu) \d \mu}$ \vspace{0.3in}
 \end{tabular}}
     \end{center}
 \end{minipage}
     \begin{itemize} 
+        \item The space-angle moment equations are exactly integrated over the $n$-th time
+            step.  Temperature unknowns must be discretized with linear-discontinuous
+            finite elements (LDFE) in space and backward
+            Euler in time.
         \setlength\itemsep{0.5em}
-        \item[] Based on the current HO estimate of consistency terms,
-        the non-linearities in $T$ are fully resolved \emph{for each LO solve}, using \colb{Newton's
-method.}    
-        \item[(B)] The HO emission source is constructed from the previous LO
-            solution, producing a \textbf{fixed source,
-            pure absorber} HO
-            problem. 
-        \item[(C)] \emph{For each HO solve}, multiple exponentially-convergent Monte
-            Carlo (ECMC) batches are performed to solve a pure absorber transport problem. 
-            \begin{itemize}
-        \setlength\itemsep{0.5em}
-            \vspace{0.46em}
-        \item  Each ECMC batch \colb{tallies the error} in the latest estimate of the solution.
-        By initializing the first estimate of $\tilde I^{n+1}$ to $\tilde I^{n}$, \textbf{very few histories are
-            needed} because we are only estimating the change in $I$ over a time
-            step.
-        \item ECMC uses a
-            \textbf{projection of the exact solution} onto a linear
-            discontinuous (LD) finite element, \colb{space-angle} mesh
-            denoted $\tilde{I}^{n+1}$.
-        \end{itemize}
-    \item[(D)] We use the latest ECMC solution for $\tilde{I}^{n+1}$ to evaluate
-        \colb{angular consistency terms} in the LO equation, e.g.,
+\item We use the latest ECMC solution for the \textbf{time-averaged projection} of
+    $I(x,\mu,t)$ to evaluate \colb{angular consistency terms} in the LO equations, e.g.,
         \begin{equation*}
-            \overline{\mu}^+_L = \frac{\mom{\mu\, I^{HO}}_L^+}{\mom{I^{HO}}_L^+}
+            \{\overline \mu\}^{+}_{L,i} = \frac{\mom{\mu\, \overline I_{HO}\left( x,\mu \right)}_{L,i}^+}{\mom{\overline
+                I_{HO}\left(x,\mu\right)}_{L,i}^+}
         \end{equation*}
-\end{itemize}
+        \item The extra end-of-time-step radiation moments, i.e., $\phi^{n+1}$, are
+            eliminated in terms of time-averaged moments, i.e., $\overline \phi$, with
+            \textbf{parametric time closures}.  The ECMC solution is used to estimate the
+            \colb{local     closures}, e.g.,
+            \begin{equation*}
+                \mom{\phi}_{L,i}^{n+1,+} = {\gamma^{HO,+}_{L,i}} {\mom{\overline{\phi}}}^+_{L,i} 
+            \end{equation*}
+            where $\gamma^{HO,+}_{L,i}$ is a constant that is estimated with the above relation and the
+            HO solution.  There is a time closure for each radiation moment equation.
+        \item  The nonlinearities are fully resolved \emph{for each LO solve} using \colb{Newton's
+method,} based on the current HO consistency terms and time closure.
+
+        \item The equations are solved in terms of time-averaged unknowns, then the
+            solution is advanced to $t^{n+1}$ for the next time step
+            using the time closure.
+    \end{itemize}
 \end{block}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{block}{Diffusion Synthetic Acceleration (DSA) of LO equations} 
-\setlength\itemsep{0.2em}
-   \begin{itemize}
-       \item We perform DSA-accelerated source iterations on the effective scattering source resulting from linearization of the LO equations. 
-       \item A spatially \colb{continuous} discretization of the diffusion equation is applied to the residual equation for scattering iterations.  The estimated error is mapped onto the 
-       moment unknowns based on a \colb{discontinuous} discretization of the P$_1$ equations over each cell. 
-         \item In a modified version of the two material problem, DSA \textbf{reduced
-             the spectral radius of iterations from 0.993 to $<$0.1.}
-   \end{itemize}
-\end{block}
 \vfill
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \begin{block}{Acknowledgements}
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.25\textwidth]{cert_logo_maroon.png}
+     \end{figure}
+    \end{block}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 }
 \end{minipage}
 \end{beamercolorbox}
@@ -344,66 +355,96 @@ method.}
  %   %\includegraphics[width=\figwidth]{../results/images/p4/e4/NJOYwgt/resonanceRes/p_common_res_k-eig.pdf} \\
  %   \end{columns}
  %   \end{block}
-    \begin{block}{Results for two Marshak wave test problems}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{block}{Details of ECMC Algorithm with MC time integration}
     \begin{itemize}
-        \setlength\itemsep{0.2em}
-        \item For all HOLO results only one outer iteration is performed, per time
-            step. Figures depict radiation temperature $T_R = \sqrt[4]{\phi/(ac)}$.
+        \setlength\itemsep{0.5em}
+        \item The HO emission source is constructed from the previous LO
+            solution, producing a \textbf{fixed source,
+            pure absorber} HO problem. 
+        \item ECMC requires a trial space representation $\tilde I(x,\mu,t)$ for the
+            intensity. \\  We use a
+            \colb{step doubly discontinuous} space in $t$, with an LDFE projection
+            in $x$ and $\mu$:
+            \vspace{0.1in}
+    \begin{center}
+        \resizebox{0.48518\linewidth}{!}{
+    \fontsize{12}{11.0}\selectfont
+        \begin{tikzpicture}[scale=1.4, every node/.style={transform shape}]
+            \node[anchor=south] at (1,4.0) {$\tilde{I}_{HO}^{n}(x,\mu)$};
+            \draw (1.0,4.0) node[fill,circle,inner sep=0pt,minimum
+            size=4.2pt] {};
+            \draw [->] (4.3,4.25) -- (5.3,4.25) node[anchor=west] {$t$};
+            \draw (1.0,0.4) -- (1.0,0.6) node[below, pos=0.4] {$t^{n}$};
+            \draw (5.90,0.4) -- (5.90,0.6) node[below, pos=0.4] {$t^{n+1}$};
+            \node at (3.6,3.06) {$\overline{I}_{HO}(x,\mu)$};
+            \draw [thick] (1.0,0.5) -- (5.9,0.5) node[anchor=north west] {};
+            \filldraw[color=black, fill=white] (1,2.450) circle (2.1pt);
+            \draw (1.0,2.45) -- (5.90,2.45);
+            \filldraw[color=blue, fill=white] (5.9,2.450) circle (2.1pt);
+            \draw (5.9,1.6) node[blue,fill,circle,inner sep=0pt,minimum size=4.2pt] {};
+            \node[anchor=west] at (5.9,1.6) {${\color{blue}\tilde{I}_{HO}^{n+1}(x,\mu)}$};
+        \end{tikzpicture}
+    }
+    \end{center}
+        \item The continuous time derivative $\frac{1}{c}\pderiv{}{t}\left(\cdot\right)$
+            is included in the transport operator. With $T^4(x)$ implicit in time, the
+            residual for $\tilde I(x,\mu,t)$ is
+            \vspace{0.20in}
+            \begin{equation*}
+                r(x,\mu,t) = \frac{1}{2}\sigma_a^{n+1} a c \left(T^{n+1}\right)^4 -
+                \frac{1}{c}\pderiv{\tilde I}{t} - \mu \pderiv{\tilde I}{x} - \sigma_a
+                {\tilde I}
+            \end{equation*}\vspace{-0.10in}
+        \item Particle histories are sampled and tracked in time to get a MC solution to
+            the transport
+            equation for the error in $\tilde I(x,\mu,t)$.  The error is projected onto
+            the trial space to accurately estimate the time-averaged and $t^{n+1}$
+            intensities.
     \end{itemize}
-    \vspace{0.7em}
-    \centering \textbf{Two Material Problem:} Optically thin (left) and thick (right) regions
-\begin{figure}
-\begin{subfigure}{0.49\textwidth}
-    \centering
-    \includegraphics[width=0.99\textwidth]{two_mat_conv.pdf}
-    \caption{Spatial mesh convergence.\label{twomat_full}}
-\end{subfigure} 
-\begin{subfigure}{0.49\textwidth}
-\centering
-    \includegraphics[width=0.99\textwidth]{two_mat_ho_compare.pdf}
-    \caption{\colb{ECMC} vs \colr{Standard MC} as HO solver \label{twomat_quick}}
-\end{subfigure}
-\end{figure}
-    \vspace{1.5em}
-\centering \textbf{Equilibrium Diffusion Limit Problem}: large $\sigma_a$ and small $C_v$.
-\begin{figure}
-    \begin{subfigure}{0.99\textwidth}
-  \centering
-    \includegraphics[width=0.49\linewidth]{diff_limit_compare.pdf}
-\caption{\label{diff_limit_compare}Comparison of HOLO using LD and step discretizations in LO equations.}
-  \end{subfigure}
-\end{figure}
-    \end{block}
+\end{block}
     \vfill
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \vfill
     \vfill
-    \begin{block}{A fixup is necessary near strong solution gradients}
-        \begin{itemize}
-        \setlength\itemsep{0.5em}
-            \item In strongly absorbing regions, the linear discontinuous spatial
-                representation can lead to \colr{unphysical negative solutions} in certain cells
-            \item In the LO system,  we set a strict floor value and preserve energy
-                conservation to determine the cell average.
-            \item For the HO system, we \textbf{rotate} $\tilde{I}(x,\mu)$ to be strictly positive after
-                each batch. However, $\tilde{I}_{\text{rotated}}(x,\mu)$ doesn't satisfy
-                the original residual equation, so the ECMC convergence quickly
-                \colr{stagnates}.  Thus, we add an artifical source
-                $\tilde\delta(x,\mu)$, which is 
-                estimated \emph{iteratively} as
-                \begin{equation*}
-                    \tilde\delta(x,\mu) = \mathbf{L}(\tilde{I}^{n+1} -
-                    \tilde{I}^{n+1}_{\text{rotated}})
-                \end{equation*}
-                where $\mathbf{L}$ is the continuous streaming plus removal operator. The solution will now converge 
-                towards the \colb{strictly positive} projection $\tilde{I}_{\text{rotated}}^{n+1}$.
-            \item We also allow the outflow from the cell to be \textbf{discontinuous}, allowing for greater angular accuracy on faces
-                \begin{figure}[H]
-                \centering
-                \includegraphics[width=0.5\textwidth]{errors.pdf}
-             \end{figure}
-        \end{itemize}
+    \begin{block}{Computational Results}
+    \begin{itemize}
+        \setlength\itemsep{0.2em}
+        \item The MC time integration with time closure (HOLO-TC) improves accuracy in optically thin problems compared
+            to backward Euler time discretization (HOLO-BE). Figure depicts radiation temperature $T_R = \sqrt[4]{\phi/(ac)}$.
+    \end{itemize}
+    \vspace{0.7em}
+    \centering \textbf{Optically thin problem:} $\sigma_a=0.2$ cm$^{-1}$
+\begin{figure}
+    \begin{subfigure}{\textwidth}
+    \centering
+    \includegraphics[width=0.65\textwidth]{thin_temp_compare.pdf}
+    \caption{Radiation temperatures $T_R = \sqrt[4]{\phi/(ac)}$}
+\end{subfigure}
+\vspace{0.2in}
+\end{figure}
+    \begin{itemize}
+        \item The HOLO method converges nonlinearites with damped Newton iterations to
+            prevent artificial ``temperature spikes'' that IMC demonstrates.  Results below
+            are the same problem but with different axis scales.
+    \end{itemize}
+    \vspace{0.3in}
+\begin{figure}
+\begin{subfigure}{0.49\textwidth}
+    \centering
+    \includegraphics[width=0.99\textwidth]{mpv_mats_imc.pdf}
+    \caption{IMC temperatures for different $\Delta t$.\label{twomat_full}}
+\end{subfigure} 
+\begin{subfigure}{0.49\textwidth}
+\centering
+    \includegraphics[width=0.99\textwidth]{mpv_mats_holo.pdf}
+    \caption{HOLO temperatures for different $\Delta t$.\label{twomat_quick}}
+\end{subfigure}
+\end{figure}
+    \vspace{1.5em}
+\centering 
     \end{block}
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -413,21 +454,17 @@ method.}
     \begin{itemize}
         \setlength\itemsep{0.25em}
         \item We are working towards a \colb{linear-discontinuous} trial space in time.  ECMC will be used to estimate
-              the slope of the intensity in time, which can be used to extrapolate to the end of the time step.  This  
-              representation will improve the statistical efficiency of tallies used to estimate $\tilde I(x,\mu)$ at 
-              the end of the time step because all particles contribute to the local slope
-        \item The LD time space will require a different sampling approach, which will be useful to investigate for extending
-              ECMC to higher spatial dimensions.
+              the slope of the intensity in time, which can be used to extrapolate the
+              solution to $t^{n+1}$. This  
+              representation will improve the statistical efficiency over current tallies
+              for $\tilde I^{n+1}(x,\mu)$ because all particles will contribute to the
+              local slope.
+        \item The LDFE $x$-$\mu$-$t$ space will require a more sophisticated sampling
+            approach, which will be useful to investigate for extending
+              ECMC to higher dimensions.
         \end{itemize}
     \end{block}
      \vfill
-    \begin{block}{Acknowledgements}
-        \begin{figure}
-            \centering
-            \includegraphics[width=0.25\textwidth]{cert_logo_maroon.png}
-     \end{figure}
-    \end{block}
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 }
 \end{minipage}
 \end{beamercolorbox}
